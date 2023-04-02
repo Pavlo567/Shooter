@@ -1,5 +1,9 @@
 from pygame import *
 from random import randint
+import pygame_menu
+init()
+import pickle
+import os
 
 font.init()
 
@@ -11,14 +15,43 @@ fire_sound = mixer.Sound('shot.wav')
 
 WIDTH, HEIGHT = 900, 600
 window = display.set_mode((WIDTH, HEIGHT))
-display.set_caption("Шутер")
+display.set_caption("Shooter")
 #картинки для спрайтів
 ufo_image = image.load("alien.png")
 player_image = image.load("spaceship.png")
 fire_image = image.load("lazer.png")
 asteroid_image = image.load("stone.png")
 ufo2_image = image.load("big_alien.png")
+
+path = os.getcwd()
+exp_images = os.listdir(path + "/explosion")
+images_list = []
+for img in exp_images:
+    images_list.append(transform.scale(image.load("explosion/" + img), (80,80)))
 # класи
+class Explosion(sprite.Sprite):
+    def __init__(self, x, y, images_list):
+        super().__init__()
+        self.images = images_list
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.k = 0
+        self.frames = 0
+
+    def update(self):
+        window.blit(self.image, self.rect)
+        self.frames +=1
+        
+        if self.frames == 3 :
+            self.frames = 0
+            self.k += 1
+            self.image = self.images[self.k]
+        if self.k == len(self.images) -1:
+            self.kill()
+
 class GameSprite(sprite.Sprite):
     def __init__(self, sprite_img, width, height, x, y, speed = 3):
         super().__init__()
