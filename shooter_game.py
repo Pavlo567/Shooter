@@ -14,7 +14,7 @@ fire_sound = mixer.Sound('shot.wav')
 
 WIDTH, HEIGHT = 900, 600
 window = display.set_mode((WIDTH, HEIGHT))
-display.set_caption("Dog_And_Food")
+display.set_caption("Shooter")
 #картинки для спрайтів
 ufo_image = image.load("alien.png")
 player_image = image.load("spaceship.png")
