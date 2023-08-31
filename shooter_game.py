@@ -2,9 +2,8 @@ from pygame import *
 from random import randint
 import pygame_menu
 init()
-import pickle
-import os
 
+import os
 font.init()
 
 mixer.init()
@@ -15,7 +14,7 @@ fire_sound = mixer.Sound('shot.wav')
 
 WIDTH, HEIGHT = 900, 600
 window = display.set_mode((WIDTH, HEIGHT))
-display.set_caption("Shooter")
+display.set_caption("Dog_And_Food")
 #картинки для спрайтів
 ufo_image = image.load("alien.png")
 player_image = image.load("spaceship.png")
@@ -44,8 +43,7 @@ class Explosion(sprite.Sprite):
     def update(self):
         window.blit(self.image, self.rect)
         self.frames +=1
-        
-        if self.frames == 3 :
+        if self.frames == 3 and self.k < len(self.images) -1:
             self.frames = 0
             self.k += 1
             self.image = self.images[self.k]
@@ -153,7 +151,7 @@ bg1_y = 0
 bg2_y = -HEIGHT
 # створення спрайтів
 player = Player(player_image, width = 100, height = 100, x = 200, y = HEIGHT-150)
-
+explosions = sprite.Group()
 bullets = sprite.Group()
 ufos = sprite.Group() #група спрайтів
 for i in range(7):
@@ -185,6 +183,24 @@ lost = 0
 
 result_text = Text("YOU WIN!", 350, 250, font_size = 50)
 
+def set_difficulty(value, difficulty):
+    # Do the job here !
+    pass
+
+def start_the_game():
+    # Do the job here !
+    menu.disable()
+
+menu = pygame_menu.Menu('Space Shooter', WIDTH, HEIGHT,
+                        theme=pygame_menu.themes.THEME_BLUE)
+
+menu.add.text_input('Name :', default='John Doe')
+menu.add.selector('Difficulty :', [('Hard', 1), ('Easy', 2)], onchange=set_difficulty)
+menu.add.button('Play', start_the_game)
+menu.add.button('Quit', pygame_menu.events.EXIT)
+
+menu.mainloop(window)
+
 
 while run:
     for e in event.get():
@@ -193,6 +209,9 @@ while run:
         if e.type == KEYDOWN:
             if e.key == K_SPACE: #якщо натиснуто пробіл
                 player.fire()
+            if e.key == K_ESCAPE: #якщо натиснуто пробіл
+                menu.enable()
+                menu.mainloop(window)
     if not finish:
         player.update() #рух гравця
         bullets.update() # рух куль
@@ -202,6 +221,7 @@ while run:
     #зіткнення куль та ворогів
         spritelist = sprite.groupcollide(ufos, bullets, True, True, sprite.collide_mask)
         for collide in spritelist:
+            explosions.add(Explosion(collide.rect.x, collide.rect.y, images_list))
             score += 1
             score_text.set_text("Score:" + str(score))
             rand_y = randint(-500, -100)
@@ -257,6 +277,8 @@ while run:
         asteroids.draw(window)
         lost_text.draw()
         score_text.draw()
+        explosions.update()
+        explosions.draw(window)
     else:
         result_text.draw()
     lost_text.draw()
